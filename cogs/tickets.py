@@ -52,5 +52,18 @@ class Tickets(commands.Cog):
                     except:
                         await channel.send("Hey! I'm lacking permissions to edit the slowmode!")
 
+    @commands.group()
+    async def set(self, ctx):
+        embed=discord.Embed(title="Set", description="What do you want to set? <:thonk:734511031036149800>", color=0x90caff)
+        await ctx.send(embed=embed)
+
+    @set.command()
+    async def slowmode(self, ctx, slowmode:int):
+        try:
+            if ctx.channel.topic.endswith("TicketPro by editid#6714"):
+                await ctx.channel.edit(slowmode_delay=slowmode, reason=f"Requested by {ctx.author}")
+        except:
+            await ctx.send(f"I'm having issues with checking this channel's topic")
+
 def setup(bot):
     bot.add_cog(Tickets(bot))
