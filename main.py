@@ -55,7 +55,7 @@ async def ping(ctx):
     """Returns Pong!"""
     await ctx.send("Pong!")
 
-extensions=["tickets","help","info","owner"]
+extensions=["tickets","help","info","owner","basic_cmds","reload"]
 bot.load_extension("jishaku")
 for extension in extensions:
     try:
