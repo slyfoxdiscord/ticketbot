@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import yaml
 from PIL import Image, ImageDraw, ImageFont
-import io
+import io, time, asyncio
 from discord import File
 
 a = open("config.yaml", 'r')
@@ -50,12 +50,32 @@ async def on_command_error(ctx, error):
     embed.color=0xff0000
     await error_channel.send(embed=embed)
 
+
+@bot.command()
+async def support(ctx):
+    embed=discord.Embed(title="Support server", description="Looks like you need assistance, feel free to join my support server [here](https://discord.gg/CXMpQAB)")
+    await ctx.send(embed=embed)
+    embed.set_footer(text="We're happy to help!")
+
 @bot.command()
 async def ping(ctx):
-    """Returns Pong!"""
-    await ctx.send("Pong!")
+    start= time.time()
+    async with ctx.message.channel.typing():
+        end_time = time.time()
+        result = end_time - start
+        result1 = round(result * 1000)
+        apiresult=round(bot.latency*1000)
+        embed=discord.Embed(title="Pong!", description=f"My ping is `{result1}ms`\nApi ping is `{apiresult}ms`")
+        embed.color=0xff4500
+        await asyncio.sleep(0.1)
+        await ctx.send(embed=embed)
 
-extensions=["tickets","help","info","owner","basic_cmds","reload"]
+@bot.command()
+async def invite(ctx):
+    embed=discord.Embed(title="Invite me!", description="You can invite me by clicking [here](https://discordapp.com/oauth2/authorize?client_id=732939909026938911&scope=bot&permissions=347216)")
+    await ctx.send(embed=embed)
+
+extensions=["tickets","help","info","owner","reload"]
 bot.load_extension("jishaku")
 for extension in extensions:
     try:
