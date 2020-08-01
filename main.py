@@ -42,6 +42,10 @@ async def on_command_error(ctx, error):
         description=f'<:cross:719565512656289822> This command is on cooldown\nTry again in **{round(error.retry_after,2)}** seconds.<:cross:719565512656289822>',color = 0xff0000)
         embed.set_footer(text=f"{ctx.author.name} got stopped by cooldown",icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
+    elif isinstance(error, commands.NoPrivateMessage):
+        embed = discord.Embed(title = "Sorry, You can\'t use this Command in private messages!.", colour = discord.Color.dark_red())
+        embed.description=(f"This command only works in servers, sorry!")
+        await ctx.send(embed=embed)
     else:
         raise error
     error_channel = bot.get_channel(733066690031517726)
@@ -49,15 +53,27 @@ async def on_command_error(ctx, error):
     embed.set_footer(text=f"channel ID: {ctx.channel.id}")
     embed.color=0xff0000
     await error_channel.send(embed=embed)
+    raise error
 
 
 @bot.command()
+@commands.guild_only()
 async def support(ctx):
     embed=discord.Embed(title="Support server", description="Looks like you need assistance, feel free to join my support server [here](https://discord.gg/CXMpQAB)")
-    await ctx.send(embed=embed)
-    embed.set_footer(text="We're happy to help!")
+    message = await ctx.send(embed=embed)
+    await message.add_reaction('<:binSUPPORT:736521962771447900>')
+    def check2(reaction, user):
+        return user == ctx.message.author and str(reaction.emoji) == "<:binSUPPORT:736521962771447900>"
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=120.0, check=check2)
+    except asyncio.TimeoutError:
+        return
+    else:
+        await message.delete()
 
 @bot.command()
+@commands.guild_only()
 async def ping(ctx):
     start= time.time()
     async with ctx.message.channel.typing():
@@ -68,14 +84,35 @@ async def ping(ctx):
         embed=discord.Embed(title="Pong!", description=f"My ping is `{result1}ms`\nApi ping is `{apiresult}ms`")
         embed.color=0xff4500
         await asyncio.sleep(0.1)
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction('<:binPING:736521999899426836>')
+        def check2(reaction, user):
+            return user == ctx.message.author and str(reaction.emoji) == "<:binPING:736521999899426836>"
+
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=120.0, check=check2)
+        except asyncio.TimeoutError:
+            return
+        else:
+            await message.delete()
 
 @bot.command()
+@commands.guild_only()
 async def invite(ctx):
     embed=discord.Embed(title="Invite me!", description="You can invite me by clicking [here](https://discordapp.com/oauth2/authorize?client_id=732939909026938911&scope=bot&permissions=347216)")
-    await ctx.send(embed=embed)
+    message = await ctx.send(embed=embed)
+    await message.add_reaction('<:binINVITE:736522048674988074>')
+    def check2(reaction, user):
+        return user == ctx.message.author and str(reaction.emoji) == "<:binINVITE:736522048674988074>"
 
-extensions=["tickets","help","info","owner","reload"]
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=120.0, check=check2)
+    except asyncio.TimeoutError:
+        return
+    else:
+        await message.delete()
+
+extensions=["tickets","help","info","owner","reload","logs"]
 bot.load_extension("jishaku")
 for extension in extensions:
     try:
