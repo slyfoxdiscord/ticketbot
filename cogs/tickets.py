@@ -1,4 +1,4 @@
-import discord
+import discord, sqlite3, datetime
 from discord.ext import commands
 
 class Tickets(commands.Cog):
@@ -6,6 +6,7 @@ class Tickets(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.guild_only()
     async def ticket(self,ctx):
         arg = f"{ctx.author.name}"
         argplus=arg.replace(" " , "-")
@@ -20,8 +21,23 @@ class Tickets(commands.Cog):
             message = await channel.send(f"@everyone", embed=embed)
             await message.add_reaction('\U0001f3ab')
             await message.add_reaction('\U000023f1')
+            conn = sqlite3.connect('mybot.db')
+            cur = conn.cursor()
+            cur.execute("Select channelID from WelcomeChannel where guildID = ?",(ctx.guild.id,))
+            check = cur.fetchone()
+            conn.close()
+            embed=discord.Embed(title=f"Ticket opened!", description=f"Ticket opened by {ctx.author} ({ctx.author.mention} **|** {ctx.author.id})", color=0x00ff00, timestamp=datetime.datetime.utcnow())
+            if check is None:
+                pass
+            else:
+                try:
+                    channel = self.bot.get_channel(check[0])
+                    await channel.send(embed=embed)
+                except:
+                    pass
 
     @commands.command()
+    @commands.guild_only()
     async def close(self, ctx):
         try:
             if not ctx.channel.topic.endswith("TicketPro by editid#6714"):
@@ -29,6 +45,20 @@ class Tickets(commands.Cog):
             else:
                 try:
                     await ctx.channel.delete(reason=f"Closed by {ctx.author}")
+                    conn = sqlite3.connect('mybot.db')
+                    cur = conn.cursor()
+                    cur.execute("Select channelID from WelcomeChannel where guildID = ?",(ctx.guild.id,))
+                    check = cur.fetchone()
+                    conn.close()
+                    embed=discord.Embed(title=f"Ticket closed!", description=f"Ticket closed by {ctx.author} ({ctx.author.mention} **|** {ctx.author.id})", color=0xff0000, timestamp=datetime.datetime.utcnow())
+                    if check is None:
+                        pass
+                    else:
+                        try:
+                            channel = self.bot.get_channel(check[0])
+                            await channel.send(embed=embed)
+                        except:
+                            pass
                 except:
                     await ctx.send("I couldn't delete this channel, please make sure I have all necessary permissions")
         except Exception as ex:
@@ -43,6 +73,26 @@ class Tickets(commands.Cog):
                 if channel.topic.endswith("TicketPro by editid#6714"):
                     try:
                         await channel.delete(reason=f"Closed.")
+                        conn = sqlite3.connect('mybot.db')
+                        cur = conn.cursor()
+                        cur.execute("Select channelID from WelcomeChannel where guildID = ?",(reaction.message.guild.id,))
+                        check = cur.fetchone()
+                        conn.close()
+                        embed=discord.Embed(title=f"Ticket closed!", description=f"Ticket closed by {user} ({user.mention} **|** {user.id})", color=0xff0000, timestamp=datetime.datetime.utcnow())
+                        if check is None:
+                            pass
+                        else:
+                            try:
+                                if not user.bot:
+                                    if reaction.emoji == "\U0001f3ab":
+                                        channel = self.bot.get_channel(check[0])
+                                        await channel.send(embed=embed)
+                                    else:
+                                        pass
+                                else:
+                                    pass
+                            except:
+                                pass
                     except:
                         await channel.send("Hey! I'm lacking permissions to delete this channel!")
             elif reaction.emoji == "\U000023f1":
@@ -53,11 +103,13 @@ class Tickets(commands.Cog):
                         await channel.send("Hey! I'm lacking permissions to edit the slowmode!")
 
     @commands.group(invoke_without_command=True)
+    @commands.guild_only()
     async def set(self, ctx):
         embed=discord.Embed(title="Set", description="What do you want to set? <:thonk:734511031036149800>", color=0x90caff)
         await ctx.send(embed=embed)
 
     @set.command()
+    @commands.guild_only()
     async def slowmode(self, ctx, cooldown:int = 0):
         try:
             if ctx.channel.topic.endswith("TicketPro by editid#6714"):
