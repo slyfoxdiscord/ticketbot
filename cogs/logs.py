@@ -1,7 +1,7 @@
 import discord, sqlite3, datetime
 from discord.ext import commands
 
-class Tickets(commands.Cog):
+class Logs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -35,6 +35,17 @@ class Tickets(commands.Cog):
                     await channel.send(embed=embed)
                 except:
                     pass
+
+    @commands.command()
+    @commands.guild_only()
+    async def add(self, ctx, member:discord.Member):
+        if not ctx.channel.topic.endswith("TicketPro by editid#6714"):
+            await ctx.send("Sorry, this isn't a ticket, so I can't add a user to it!")
+        else:
+            overwrites = { member: discord.PermissionOverwrite(read_messages=True), member: discord.PermissionOverwrite(send_messages=True) }
+            embed=discord.Embed(title="You were added to this ticket!", description=f"Hey {member.name}! You've been added to this ticket by {ctx.author}!", color=0x00ff00, timestamp=datetime.datetime.utcnow())
+            await ctx.channel.set_permissions(member, read_messages=True, send_messages=True)
+            await ctx.channel.send(f"{member.mention}", embed=embed)
 
     @commands.command()
     @commands.guild_only()
@@ -125,4 +136,4 @@ class Tickets(commands.Cog):
             raise e
 
 def setup(bot):
-    bot.add_cog(Tickets(bot))
+    bot.add_cog(Logs(bot))

@@ -7,6 +7,7 @@ class Info(commands.Cog):
         self.bot = bot
 
     @commands.command(name="info")
+    @commands.guild_only()
     async def _info(self, ctx):
         embed=discord.Embed(title="Info", description=f"I heard you needed some info! React with <:redx:724951866412367882> to remove this embed.", color=0x90caff)
         embed.add_field(name=f"Data stored:", value="None!", inline=False)
